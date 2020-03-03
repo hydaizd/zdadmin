@@ -12,12 +12,6 @@ type OpLog struct {
 }
 
 // 创建操作日志
-func (m OpLog) Create() error {
-	opLog := &models.OpLog{
-		OpTable:   m.OpTable,
-		OpAction:  m.OpAction,
-		CommonId:  m.CommonId,
-		CreatedBy: m.CreatedBy,
-	}
+func (m OpLog) Create(opLog *models.OpLog) error {
 	return models.OpLog{}.Create(opLog)
 }

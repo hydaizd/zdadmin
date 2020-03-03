@@ -32,6 +32,7 @@ func InitRouter() *gin.Engine {
 		// 后台角色
 		adminRole := v1.AdminRole{}
 		apiV1.POST("/adminrole/create", adminRole.Create)
+		apiV1.POST("/adminrole/update", adminRole.Update)
 		apiV1.POST("/adminrole/setPermission", adminRole.SetPermission)
 		apiV1.GET("/adminrole/getPermission", adminRole.GetPermission)
 

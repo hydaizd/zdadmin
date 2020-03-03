@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/hydaizd/zdadmin/models"
 	"github.com/hydaizd/zdadmin/pkg/app"
 	"github.com/hydaizd/zdadmin/pkg/jwt"
 	"github.com/hydaizd/zdadmin/service/admin_menu_service"
@@ -33,13 +34,17 @@ func (AdminMenu) Create(c *gin.Context) {
 		return
 	}
 	loginUserId := jwt.GetUserId(c)
+
 	adminMenuService := admin_menu_service.AdminMenu{
-		ParentId:    form.ParentId,
-		MenuName:    form.MenuName,
-		MenuUri:     form.MenuUri,
 		LoginUserId: loginUserId,
 	}
-	if err := adminMenuService.Create(); err != nil {
+	adminMenu := models.AdminMenu{
+		ParentId: form.ParentId,
+		MenuName: form.MenuName,
+		MenuUri:  form.MenuUri,
+	}
+
+	if err := adminMenuService.Create(&adminMenu); err != nil {
 		app.Fail(c, err.Error())
 		return
 	}

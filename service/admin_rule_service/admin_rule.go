@@ -14,22 +14,21 @@ type AdminRule struct {
 }
 
 // 创建权限规则
-func (m AdminRule) Create() error {
-	newAdminRule := &models.AdminRule{
-		MenuId:   m.MenuId,
-		RuleName: m.RuleName,
-		RuleCode: m.RuleCode,
-		Method:   m.Method,
+func (m AdminRule) Create(adminRule *models.AdminRule) error {
+	err := models.AdminRule{}.Create(adminRule)
+
+	if err != nil {
+		return err
 	}
-	err := models.AdminRule{}.Create(newAdminRule)
 
 	// 添加操作日志
-	_ = oplog_service.OpLog{
+	opLog := models.OpLog{
 		OpTable:   "admin_rule",
 		OpAction:  "create",
-		CommonId:  newAdminRule.RuleId,
+		CommonId:  adminRule.RuleId,
 		CreatedBy: m.LoginUserId,
-	}.Create()
+	}
+	_ = oplog_service.OpLog{}.Create(&opLog)
 
-	return err
+	return nil
 }

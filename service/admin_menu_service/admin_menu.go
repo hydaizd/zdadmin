@@ -6,28 +6,24 @@ import (
 )
 
 type AdminMenu struct {
-	ParentId    int
-	MenuName    string
-	MenuUri     string
 	LoginUserId int
 }
 
 // 创建菜单
-func (m AdminMenu) Create() error {
-	newAdminMenu := &models.AdminMenu{
-		ParentId: m.ParentId,
-		MenuName: m.MenuName,
-		MenuUri:  m.MenuUri,
+func (m AdminMenu) Create(adminMenu *models.AdminMenu) error {
+	err := models.AdminMenu{}.Create(adminMenu)
+	if err != nil {
+		return err
 	}
-	err := models.AdminMenu{}.Create(newAdminMenu)
 
 	// 添加操作日志
-	_ = oplog_service.OpLog{
+	opLog := models.OpLog{
 		OpTable:   "admin_menu",
 		OpAction:  "create",
-		CommonId:  newAdminMenu.MenuId,
+		CommonId:  adminMenu.MenuId,
 		CreatedBy: m.LoginUserId,
-	}.Create()
+	}
+	_ = oplog_service.OpLog{}.Create(&opLog)
 
-	return err
+	return nil
 }

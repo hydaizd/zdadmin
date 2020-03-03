@@ -9,47 +9,73 @@ import (
 )
 
 type AdminRole struct {
-	RoleId      int
-	RoleName    string
 	LoginUserId int
-	RuleIds     []int
 }
 
 // 创建角色
-func (m AdminRole) Create() error {
+func (m AdminRole) Create(adminRole *models.AdminRole) error {
 	// 判断角色名是否已存在
-	adminRole, err := models.AdminRole{}.FindByRoleName(m.RoleName)
+	oldAdminRole, err := models.AdminRole{}.FindByRoleName(adminRole.RoleName)
 	if err != nil {
 		return err
 	}
-	if adminRole.RoleId > 0 {
+	if oldAdminRole.RoleId > 0 {
 		return errors.New("角色名已存在")
 	}
 
-	newAdminRole := &models.AdminRole{
-		RoleName: m.RoleName,
+	err = models.AdminRole{}.Create(adminRole)
+	if err != nil {
+		return err
 	}
-	err = models.AdminRole{}.Create(newAdminRole)
 
 	// 添加操作日志
-	_ = oplog_service.OpLog{
+	opLog := models.OpLog{
 		OpTable:   "admin_role",
 		OpAction:  "create",
-		CommonId:  newAdminRole.RoleId,
+		CommonId:  adminRole.RoleId,
 		CreatedBy: m.LoginUserId,
-	}.Create()
+	}
+	_ = oplog_service.OpLog{}.Create(&opLog)
 
-	return err
+	return nil
+}
+
+// 更新角色
+func (m AdminRole) Update(roleId int, adminRole *models.AdminRole) error {
+	// 判断角色名是否已存在
+	oldAdminRole, err := models.AdminRole{}.FindByRoleName(adminRole.RoleName)
+	if err != nil {
+		return err
+	}
+	if oldAdminRole.RoleId > 0 && roleId != oldAdminRole.RoleId {
+		return errors.New("角色名已存在")
+	}
+
+	err = models.AdminRole{}.Update(roleId, adminRole)
+	if err != nil {
+		return err
+	}
+
+	// 添加操作日志
+	opLog := models.OpLog{
+		OpTable:   "admin_role",
+		OpAction:  "update",
+		CommonId:  roleId,
+		CreatedBy: m.LoginUserId,
+	}
+	_ = oplog_service.OpLog{}.Create(&opLog)
+
+	return nil
 }
 
 // 设置角色权限
-func (m AdminRole) SetPermission() error {
-	adminRuleList, err := models.AdminRule{}.FindByRuleIds(m.RuleIds)
+func (m AdminRole) SetPermission(roleId int, ruleIds []int) error {
+	adminRuleList, err := models.AdminRule{}.FindByRuleIds(ruleIds)
 	if err != nil {
 		return err
 	}
 	if len(adminRuleList) > 0 {
-		vRole := fmt.Sprintf("role_%d", m.RoleId)
+		vRole := fmt.Sprintf("role_%d", roleId)
 		// 删除指定角色所有权限规则
 		casbin.Enforcer.RemoveFilteredGroupingPolicy(0, vRole)
 		for _, value := range adminRuleList {
@@ -73,8 +99,8 @@ GetGroupingPolicy返回结果如下：
 	"POST"
 ],
 */
-func (m AdminRole) GetPermission() [][]string {
-	vRole := fmt.Sprintf("role_%d", m.RoleId)
+func (m AdminRole) GetPermission(roleId int) [][]string {
+	vRole := fmt.Sprintf("role_%d", roleId)
 	// 按指定角色过滤
 	return casbin.Enforcer.GetFilteredGroupingPolicy(0, vRole)
 }

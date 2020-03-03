@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/hydaizd/zdadmin/models"
 	"github.com/hydaizd/zdadmin/pkg/app"
 	"github.com/hydaizd/zdadmin/pkg/jwt"
 	"github.com/hydaizd/zdadmin/service/admin_user_service"
@@ -29,11 +30,8 @@ func (AdminUser) Login(c *gin.Context) {
 		app.Fail(c, err.Error())
 		return
 	}
-	adminUserService := admin_user_service.AdminUser{
-		Username: form.Username,
-		Password: form.Password,
-	}
-	token, err := adminUserService.Login()
+	adminUserService := admin_user_service.AdminUser{}
+	token, err := adminUserService.Login(form.Username, form.Password)
 	if err != nil {
 		app.Fail(c, err.Error())
 		return
@@ -71,14 +69,20 @@ func (AdminUser) Create(c *gin.Context) {
 	}
 	loginUserId := jwt.GetUserId(c)
 	adminUserService := admin_user_service.AdminUser{
-		Username:    form.Username,
-		Password:    form.Password,
-		RealName:    form.RealName,
-		Phone:       form.Phone,
-		Email:       form.Email,
 		LoginUserId: loginUserId,
 	}
-	if err := adminUserService.Create(); err != nil {
+	adminUser := models.AdminUser{
+		Username: form.Username,
+		Password: form.Password,
+		RealName: form.RealName,
+		Phone:    form.Phone,
+		Email:    form.Phone,
+		AddressList: []*models.AdminUserAddress{
+			{Address: "1号"},
+			{Address: "2号"},
+		},
+	}
+	if err := adminUserService.Create(&adminUser); err != nil {
 		app.Fail(c, err.Error())
 		return
 	}
@@ -105,11 +109,7 @@ func (AdminUser) SetRole(c *gin.Context) {
 		app.Fail(c, err.Error())
 		return
 	}
-	adminUserService := admin_user_service.AdminUser{
-		UserId:  form.UserId,
-		RoleIds: form.RoleIds,
-	}
-	adminUserService.SetRole()
+	admin_user_service.AdminUser{}.SetRole(form.UserId, form.RoleIds)
 	app.Success(c)
 }
 
@@ -130,10 +130,7 @@ func (AdminUser) GetRole(c *gin.Context) {
 		app.Fail(c, err.Error())
 		return
 	}
-	adminUserService := admin_user_service.AdminUser{
-		UserId: form.UserId,
-	}
-	adminUserRoleList, err := adminUserService.GetRole()
+	adminUserRoleList, err := admin_user_service.AdminUser{}.GetRole(form.UserId)
 	if err != nil {
 		app.Fail(c, err.Error())
 		return
@@ -161,11 +158,8 @@ func (AdminUser) SetPermission(c *gin.Context) {
 		app.Fail(c, err.Error())
 		return
 	}
-	adminUserService := admin_user_service.AdminUser{
-		UserId:  form.UserId,
-		RuleIds: form.RuleIds,
-	}
-	if err := adminUserService.SetPermission(); err != nil {
+	err := admin_user_service.AdminUser{}.SetPermission(form.UserId, form.RuleIds)
+	if err != nil {
 		app.Fail(c, err.Error())
 		return
 	}
@@ -189,9 +183,7 @@ func (AdminUser) GetPermission(c *gin.Context) {
 		app.Fail(c, err.Error())
 		return
 	}
-	adminUserService := admin_user_service.AdminUser{
-		UserId: form.UserId,
-	}
-	adminUserRuleList := adminUserService.GetPermission()
+	adminUserRuleList := admin_user_service.AdminUser{}.GetPermission(form.UserId)
+
 	app.Success(c, adminUserRuleList)
 }

@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/hydaizd/zdadmin/models"
 	"github.com/hydaizd/zdadmin/pkg/app"
 	"github.com/hydaizd/zdadmin/pkg/jwt"
 	"github.com/hydaizd/zdadmin/service/admin_rule_service"
@@ -36,13 +37,15 @@ func (AdminRule) Create(c *gin.Context) {
 	}
 	loginUserId := jwt.GetUserId(c)
 	adminRuleService := admin_rule_service.AdminRule{
-		MenuId:      form.MenuId,
-		RuleName:    form.RuleName,
-		RuleCode:    form.RuleCode,
-		Method:      form.Method,
 		LoginUserId: loginUserId,
 	}
-	if err := adminRuleService.Create(); err != nil {
+	adminRule := models.AdminRule{
+		MenuId:   form.MenuId,
+		RuleName: form.RuleName,
+		RuleCode: form.RuleCode,
+		Method:   form.Method,
+	}
+	if err := adminRuleService.Create(&adminRule); err != nil {
 		app.Fail(c, err.Error())
 		return
 	}
