@@ -52,6 +52,10 @@ func InitRouter() *gin.Engine {
 		apiV1.GET("/adminuser/getRole", adminUser.GetRole)
 		apiV1.POST("/adminuser/setPermission", adminUser.SetPermission)
 		apiV1.GET("/adminuser/getPermission", adminUser.GetPermission)
+
+		// 测试控制器
+		test := v1.Test{}
+		apiV1.GET("/test/runsql", test.RunSql)
 	}
 
 	return r
@@ -62,6 +66,7 @@ func getNotCheckLoginList() []string {
 	apiV1 := apiPrefix + "/v1"
 	return []string{
 		apiV1 + "/adminuser/login",
+		apiV1 + "/test/runsql",
 	}
 }
 
