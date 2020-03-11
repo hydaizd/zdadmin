@@ -35,6 +35,7 @@ func InitRouter() *gin.Engine {
 		apiV1.POST("/adminrole/update", adminRole.Update)
 		apiV1.POST("/adminrole/setPermission", adminRole.SetPermission)
 		apiV1.GET("/adminrole/getPermission", adminRole.GetPermission)
+		apiV1.GET("/adminrole/checkPermission", adminRole.CheckPermission)
 
 		// 后台菜单
 		adminMenu := v1.AdminMenu{}

@@ -26,7 +26,7 @@ func init() {
 // @title zdadmin
 // @version 1.0
 // @description zdadmin接口服务
-// @host test.app.com:8888
+// @host localhost:8888
 // @BasePath /api/v1
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header

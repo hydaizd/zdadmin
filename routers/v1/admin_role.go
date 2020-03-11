@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/hydaizd/zdadmin/models"
 	"github.com/hydaizd/zdadmin/pkg/app"
@@ -109,7 +110,7 @@ func (AdminRole) SetPermission(c *gin.Context) {
 }
 
 // @Tags 管理后台角色
-// @Summary 获取角色权限
+// @Summary 获取角色权限列表
 // @Produce json
 // @Security ApiKeyAuth
 // @Param role_id query int true "角色ID"
@@ -128,4 +129,31 @@ func (AdminRole) GetPermission(c *gin.Context) {
 	adminUserRoleList := admin_role_service.AdminRole{}.GetPermission(form.RoleId)
 
 	app.Success(c, adminUserRoleList)
+}
+
+// @Tags 管理后台角色
+// @Summary 检测角色是否有某个权限
+// @Produce json
+// @Security ApiKeyAuth
+// @Param role_id query int true "角色ID"
+// @Success 200 {object} app.Response
+// @Failure 500 {object} app.Response
+// @Router /adminrole/checkPermission [get]
+func (AdminRole) CheckPermission(c *gin.Context) {
+	type Form struct {
+		RoleId int `form:"role_id" binding:"required"`
+	}
+	form := Form{}
+	if err := c.ShouldBind(&form); err != nil {
+		app.Fail(c, err.Error())
+		return
+	}
+	obj := "/adminrole/getPermission"
+	ok, err := admin_role_service.AdminRole{}.CheckPermission(form.RoleId, obj)
+	fmt.Println(ok, err)
+	if !ok {
+		app.Fail(c, "没有权限")
+	} else {
+		app.Success(c, "拥有权限")
+	}
 }

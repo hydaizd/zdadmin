@@ -104,3 +104,12 @@ func (m AdminRole) GetPermission(roleId int) [][]string {
 	// 按指定角色过滤
 	return casbin.Enforcer.GetFilteredGroupingPolicy(0, vRole)
 }
+
+// 检查角色是否有某个权限
+func (m AdminRole) CheckPermission(roleId int, obj string) (bool, error) {
+	vRole := fmt.Sprintf("role_%d", roleId)
+	act := "GET"
+	fmt.Println(vRole, act)
+	ok := casbin.Enforcer.HasGroupingPolicy(vRole, obj, act)
+	return ok, nil
+}

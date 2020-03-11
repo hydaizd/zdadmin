@@ -78,9 +78,9 @@ func (m AdminUser) Create(adminUser *models.AdminUser) error {
 
 // 设置用户角色
 func (m AdminUser) SetRole(userId int, roleIds []int) {
+	vUser := fmt.Sprintf("user_%d", userId)
 	for _, roleId := range roleIds {
 		// 添加用户组权限
-		vUser := fmt.Sprintf("user_%d", userId)
 		vRole := fmt.Sprintf("role_%d", roleId)
 		// 如果用户角色已存在则添加时返回false)
 		casbin.Enforcer.AddRoleForUser(vUser, vRole)
